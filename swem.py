@@ -20,7 +20,7 @@ class SWEM():
     def __init__(self, w2v, tokenizer, oov_initialize_range=(-0.01, 0.01)):
         self.w2v = w2v
         self.tokenizer = tokenizer
-        self.vocab = set(self.w2v.vocab.keys())
+        self.vocab = set(self.w2v.index_to_key)
         self.embedding_dim = self.w2v.vector_size
         self.oov_initialize_range = oov_initialize_range
 

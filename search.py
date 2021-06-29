@@ -1,3 +1,4 @@
+import argparse
 import time
 
 from gensim.models import KeyedVectors
@@ -6,13 +7,18 @@ from elasticsearch import Elasticsearch
 from swem import MeCabTokenizer
 from swem import SWEM
 
+# args
+parser = argparse.ArgumentParser()
+parser.add_argument('--word_vectors_file', type=str, required=True,
+    help='Word vectors file (.txt)')
+args = parser.parse_args()
+
 client = Elasticsearch()
 SEARCH_SIZE = 10
 INDEX_NAME = "wikipedia"
 
-w2v_path = "jawiki.word_vectors.200d.txt"
-w2v = KeyedVectors.load_word2vec_format(w2v_path, binary=False)
-tokenizer = MeCabTokenizer("-O wakati")
+w2v = KeyedVectors.load_word2vec_format(args.word_vectors_file, binary=False)
+tokenizer = MeCabTokenizer("-O wakati -d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd")
 swem = SWEM(w2v, tokenizer)
 
 
@@ -35,7 +41,7 @@ def handle_query():
         "script_score": {
             "query": {"match_all": {}},
             "script": {
-                "source": "cosineSimilarity(params.query_vector, doc['text_vector']) + 1.0",
+                "source": "cosineSimilarity(params.query_vector, 'text_vector') + 1.0",
                 "params": {"query_vector": query_vector}
             }
         }
